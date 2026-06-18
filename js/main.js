@@ -1,5 +1,5 @@
 /* ============================================
-   VELMO BLACK - JAVASCRIPT PRINCIPAL
+   VELMO BLACK - JS SITE SEO/BLOG
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -8,19 +8,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
 
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
+    if (hamburger) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+    }
 
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
+            if (window.innerWidth <= 768) {
+                hamburger?.classList.remove('active');
+                navMenu?.classList.remove('active');
+            }
         });
     });
 
-    // ===== POP-UP PROMOCIONAL =====
+    // Dropdown mobile
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+        const link = dropdown.querySelector('a');
+        link.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+            }
+        });
+    });
+
+    // ===== FAQ TOGGLE =====
+    window.toggleFAQ = function(button) {
+        button.classList.toggle('active');
+        const resposta = button.nextElementSibling;
+        resposta.classList.toggle('open');
+    };
+
+    // ===== POP-UP =====
     const popupOverlay = document.getElementById('popup-overlay');
 
     function abrirPopup() {
@@ -35,11 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Abrir popup após 3 segundos
-    setTimeout(abrirPopup, 3000);
+    setTimeout(abrirPopup, 4000);
 
-    // Fechar popup ao clicar fora
-    popupOverlay.addEventListener('click', function(e) {
+    popupOverlay?.addEventListener('click', function(e) {
         if (e.target === popupOverlay) {
             fecharPopup();
         }
@@ -65,319 +86,100 @@ document.addEventListener('DOMContentLoaded', function() {
         aplicarMascaraTelefone(input);
     });
 
-    // ===== MÁSCARA DE E-MAIL (validação simples) =====
-    function validarEmail(email) {
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(email);
-    }
-
-    document.querySelectorAll('input[type="email"]').forEach(input => {
-        input.addEventListener('blur', function() {
-            if (this.value && !validarEmail(this.value)) {
-                this.style.borderColor = '#F44336';
-                if (!this.nextElementSibling?.classList.contains('erro-msg')) {
-                    const msg = document.createElement('span');
-                    msg.classList.add('erro-msg');
-                    msg.style.cssText = 'color: #F44336; font-size: 12px; display: block; margin-top: 4px;';
-                    msg.textContent = 'E-mail inválido';
-                    this.parentNode.appendChild(msg);
-                }
-            } else if (this.value && validarEmail(this.value)) {
-                this.style.borderColor = '#E0E0E0';
-                const erroMsg = this.parentNode.querySelector('.erro-msg');
-                if (erroMsg) erroMsg.remove();
-            }
-        });
-
-        input.addEventListener('focus', function() {
-            this.style.borderColor = '#999999';
-            const erroMsg = this.parentNode.querySelector('.erro-msg');
-            if (erroMsg) erroMsg.remove();
-        });
-    });
-
-    // ===== TOGGLE PREÇO PRODUTOS =====
-    window.togglePreco = function(button) {
-        const precoInfo = button.nextElementSibling;
-        const preco = button.getAttribute('data-preco');
-        const parcelas = button.getAttribute('data-parcelas');
-
-        if (precoInfo.style.display === 'none' || precoInfo.style.display === '') {
-            precoInfo.style.display = 'block';
-            precoInfo.querySelector('.preco-valor').textContent = preco;
-            precoInfo.querySelector('.preco-parcelas').textContent = `ou ${parcelas} no cartão`;
-            button.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Valor';
-        } else {
-            precoInfo.style.display = 'none';
-            button.innerHTML = '<i class="fas fa-eye"></i> Ver Valor';
-        }
-    };
-
-    // ===== TOGGLE PREÇO COMBOS =====
-    window.togglePrecoCombo = function(button) {
-        const precoInfo = button.nextElementSibling;
-        const preco = button.getAttribute('data-preco');
-        const parcelas = button.getAttribute('data-parcelas');
-
-        if (precoInfo.style.display === 'none' || precoInfo.style.display === '') {
-            precoInfo.style.display = 'block';
-            precoInfo.querySelector('.combo-preco-valor').textContent = preco;
-            precoInfo.querySelector('.combo-preco-parcelas').textContent = `ou ${parcelas} no cartão`;
-            button.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Valor';
-        } else {
-            precoInfo.style.display = 'none';
-            button.innerHTML = '<i class="fas fa-eye"></i> Ver Valor';
-        }
-    };
-
-    // ===== REDIRECIONAR BOTÕES COMPRAR =====
-    document.querySelectorAll('.btn-buy[data-link]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const link = this.getAttribute('data-link');
-            if (link) {
-                window.open(link, '_blank');
-            }
-        });
-    });
-
-    // ===== API CAPTURA DE LEADS =====
+    // ===== API DE LEADS =====
     function enviarLeadAPI(dados) {
-        const apiEndpoint = 'https://api.exemplo.com/leads'; // Substituir pelo endpoint real
+        const apiEndpoint = 'https://api.exemplo.com/leads';
 
         return fetch(apiEndpoint, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dados)
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Lead enviado com sucesso:', data);
+            console.log('Lead enviado:', data);
             return data;
         })
         .catch(error => {
-            console.error('Erro ao enviar lead:', error);
-            // Fallback: armazenar localmente
-            const leads = JSON.parse(localStorage.getItem('velmo_leads') || '[]');
+            console.error('Erro API:', error);
+            const leads = JSON.parse(localStorage.getItem('velmo_seo_leads') || '[]');
             leads.push({ ...dados, timestamp: new Date().toISOString() });
-            localStorage.setItem('velmo_leads', JSON.stringify(leads));
+            localStorage.setItem('velmo_seo_leads', JSON.stringify(leads));
             return { status: 'armazenado_localmente' };
         });
     }
 
-    // ===== FORMULÁRIO POP-UP =====
-    const popupForm = document.getElementById('popup-form');
-    if (popupForm) {
-        popupForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    // ===== FORM POPUP =====
+    document.getElementById('popup-form')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nome = document.getElementById('popup-nome').value.trim();
+        const telefone = document.getElementById('popup-telefone').value.trim();
+        const email = document.getElementById('popup-email').value.trim();
 
-            const nome = document.getElementById('popup-nome').value.trim();
-            const telefone = document.getElementById('popup-telefone').value.trim();
-            const email = document.getElementById('popup-email').value.trim();
-
-            if (!nome || !telefone) {
-                alert('Por favor, preencha nome e telefone.');
-                return;
-            }
-
-            const leadData = {
-                nome: nome,
-                telefone: telefone,
-                email: email || '',
-                origem: 'popup_promocao',
-                fonte: window.location.href
-            };
-
-            enviarLeadAPI(leadData).then(() => {
-                alert('Cadastro realizado com sucesso! Você receberá seu cupom de desconto.');
-                popupForm.reset();
-                fecharPopup();
-            });
-        });
-    }
-
-    // ===== FORMULÁRIO CONTATO =====
-    const contatoForm = document.getElementById('form-contato');
-    if (contatoForm) {
-        contatoForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const nome = document.getElementById('contato-nome').value.trim();
-            const telefone = document.getElementById('contato-telefone').value.trim();
-            const email = document.getElementById('contato-email').value.trim();
-            const mensagem = document.getElementById('contato-mensagem').value.trim();
-
-            if (!nome || !telefone) {
-                alert('Por favor, preencha nome e telefone.');
-                return;
-            }
-
-            const leadData = {
-                nome: nome,
-                telefone: telefone,
-                email: email || '',
-                mensagem: mensagem || '',
-                origem: 'formulario_contato',
-                fonte: window.location.href
-            };
-
-            enviarLeadAPI(leadData).then(() => {
-                alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-                contatoForm.reset();
-            });
-        });
-    }
-
-    // ===== CARREGAR COMBOS DINÂMICOS =====
-    const combosData = [
-        {
-            titulo: 'Combo 1+1 Morango + Tangerina',
-            itens: ['1 Velmo Black Morango', '1 Velmo Black Tangerina'],
-            preco: 'R$ 245,80',
-            parcelas: '12x de R$ 20,48',
-            link: 'https://pay.hest.com.br/73452160-081a-439c-a487-3dcdd46ada7c',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 1+1 Morango + Caps',
-            itens: ['1 Velmo Black Morango', '1 Velmo Black Caps'],
-            preco: 'R$ 245,80',
-            parcelas: '12x de R$ 20,48',
-            link: 'https://pay.hest.com.br/a473b9e2-e409-4caf-a33c-4986745a7669',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 1+1 Tangerina + Caps',
-            itens: ['1 Velmo Black Tangerina', '1 Velmo Black Caps'],
-            preco: 'R$ 245,80',
-            parcelas: '12x de R$ 20,48',
-            link: 'https://pay.hest.com.br/95a743be-26bb-4fc0-974c-7727a9e7d9e8',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 2+2 Morango + Tangerina',
-            itens: ['2 Velmo Black Morango', '2 Velmo Black Tangerina'],
-            preco: 'R$ 335,70',
-            parcelas: '12x de R$ 27,98',
-            link: 'https://pay.hest.com.br/dbca2f79-41f0-41a8-92ef-ab96ebed2786',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 2+2 Morango + Caps',
-            itens: ['2 Velmo Black Morango', '2 Velmo Black Caps'],
-            preco: 'R$ 335,70',
-            parcelas: '12x de R$ 27,98',
-            link: 'https://pay.hest.com.br/bf7887b3-444f-4e98-92b1-efceb5774088',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 2+2 Tangerina + Caps',
-            itens: ['2 Velmo Black Tangerina', '2 Velmo Black Caps'],
-            preco: 'R$ 335,70',
-            parcelas: '12x de R$ 27,98',
-            link: 'https://pay.hest.com.br/8de2e695-4a60-4eca-a11a-d0a09ec15021',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 3+3 Morango + Tangerina',
-            itens: ['3 Velmo Black Morango', '3 Velmo Black Tangerina'],
-            preco: 'R$ 461,50',
-            parcelas: '12x de R$ 38,46',
-            link: 'https://pay.hest.com.br/83729bc5-9475-46b7-9779-358943273b5b',
-            destaque: true
-        },
-        {
-            titulo: 'Combo 3+3 Morango + Caps',
-            itens: ['3 Velmo Black Morango', '3 Velmo Black Caps'],
-            preco: 'R$ 461,50',
-            parcelas: '12x de R$ 38,46',
-            link: 'https://pay.hest.com.br/ddb3637f-2e01-4633-b276-c5e6337521d3',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 3+3 Tangerina + Caps',
-            itens: ['3 Velmo Black Tangerina', '3 Velmo Black Caps'],
-            preco: 'R$ 461,50',
-            parcelas: '12x de R$ 38,46',
-            link: 'https://pay.hest.com.br/c7a4a09a-93ed-4804-b552-1b6b7104e2c9',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 6+6 Morango + Tangerina',
-            itens: ['6 Velmo Black Morango', '6 Velmo Black Tangerina'],
-            preco: 'R$ 851,80',
-            parcelas: '12x de R$ 70,98',
-            link: 'https://pay.hest.com.br/111b868b-89f6-43e6-9348-56f045374826',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 6+6 Morango + Caps',
-            itens: ['6 Velmo Black Morango', '6 Velmo Black Caps'],
-            preco: 'R$ 851,80',
-            parcelas: '12x de R$ 70,98',
-            link: 'https://pay.hest.com.br/67298069-a71d-4168-a2a5-c024dc1e4d7f',
-            destaque: false
-        },
-        {
-            titulo: 'Combo 6+6 Tangerina + Caps',
-            itens: ['6 Velmo Black Tangerina', '6 Velmo Black Caps'],
-            preco: 'R$ 851,80',
-            parcelas: '12x de R$ 70,98',
-            link: 'https://pay.hest.com.br/fdd2b644-178f-434f-a27c-5ae62548d060',
-            destaque: false
+        if (!nome || !telefone) {
+            alert('Por favor, preencha nome e telefone.');
+            return;
         }
-    ];
 
-    function carregarCombos() {
-        const container = document.getElementById('combos-container');
-        if (!container) return;
-
-        let html = '';
-
-        combosData.forEach((combo, index) => {
-            const classeDestaque = combo.destaque ? ' destaque' : '';
-
-            html += `
-                <div class="combo-card${classeDestaque}">
-                    <h3 class="combo-titulo">${combo.titulo}</h3>
-                    <ul class="combo-itens">
-                        ${combo.itens.map(item => `<li><i class="fas fa-check"></i> ${item}</li>`).join('')}
-                    </ul>
-                    <div class="combo-preco-wrapper">
-                        <button class="combo-btn-ver-valor" onclick="togglePrecoCombo(this)" data-preco="${combo.preco}" data-parcelas="${combo.parcelas}">
-                            <i class="fas fa-eye"></i> Ver Valor
-                        </button>
-                        <div class="combo-preco-info" style="display: none;">
-                            <span class="combo-preco-valor"></span>
-                            <span class="combo-preco-parcelas"></span>
-                        </div>
-                    </div>
-                    <div class="combo-acoes">
-                        <a href="#" class="btn btn-buy btn-shine" data-link="${combo.link}">
-                            <span>Comprar Agora</span>
-                        </a>
-                    </div>
-                </div>
-            `;
+        enviarLeadAPI({
+            nome, telefone,
+            email: email || '',
+            origem: 'popup_guia_gratuito',
+            fonte: window.location.href
+        }).then(() => {
+            alert('Guia enviado com sucesso! Verifique seu e-mail.');
+            this.reset();
+            fecharPopup();
         });
+    });
 
-        container.innerHTML = html;
+    // ===== FORM NEWSLETTER =====
+    document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nome = document.getElementById('news-nome').value.trim();
+        const telefone = document.getElementById('news-telefone').value.trim();
+        const email = document.getElementById('news-email').value.trim();
 
-        // Reativar listeners nos botões de comprar
-        document.querySelectorAll('.btn-buy[data-link]').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const link = this.getAttribute('data-link');
-                if (link) {
-                    window.open(link, '_blank');
-                }
-            });
+        if (!nome || !telefone) {
+            alert('Por favor, preencha nome e telefone.');
+            return;
+        }
+
+        enviarLeadAPI({
+            nome, telefone,
+            email: email || '',
+            origem: 'newsletter',
+            fonte: window.location.href
+        }).then(() => {
+            alert('Inscrição realizada com sucesso!');
+            this.reset();
         });
-    }
+    });
 
-    carregarCombos();
+    // ===== FORM CONTATO =====
+    document.getElementById('form-contato')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nome = document.getElementById('contato-nome').value.trim();
+        const telefone = document.getElementById('contato-telefone').value.trim();
+        const email = document.getElementById('contato-email').value.trim();
+        const mensagem = document.getElementById('contato-mensagem').value.trim();
+
+        if (!nome || !telefone) {
+            alert('Por favor, preencha nome e telefone.');
+            return;
+        }
+
+        enviarLeadAPI({
+            nome, telefone,
+            email: email || '',
+            mensagem: mensagem || '',
+            origem: 'formulario_contato',
+            fonte: window.location.href
+        }).then(() => {
+            alert('Mensagem enviada! Retornaremos em breve.');
+            this.reset();
+        });
+    });
 
     // ===== LAZY LOAD =====
     if ('IntersectionObserver' in window) {
@@ -386,18 +188,15 @@ document.addEventListener('DOMContentLoaded', function() {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                    }
+                    if (img.dataset.src) img.src = img.dataset.src;
                     imageObserver.unobserve(img);
                 }
             });
         });
-
         lazyImages.forEach(img => imageObserver.observe(img));
     }
 
-    // ===== SMOOTH SCROLL PARA ÂNCORAS =====
+    // ===== SMOOTH SCROLL =====
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
@@ -405,50 +204,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 const target = document.querySelector(href);
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }
         });
     });
 
-    // ===== TRACKING DE EVENTOS =====
+    // ===== TRACKING =====
     function trackEvent(categoria, acao, rotulo) {
-        // Google Analytics
         if (typeof gtag === 'function') {
-            gtag('event', acao, {
-                'event_category': categoria,
-                'event_label': rotulo
-            });
+            gtag('event', acao, { event_category: categoria, event_label: rotulo });
         }
-
-        // Facebook Pixel
         if (typeof fbq === 'function') {
-            fbq('track', acao, {
-                content_category: categoria,
-                content_name: rotulo
-            });
+            fbq('track', acao, { content_category: categoria, content_name: rotulo });
         }
     }
 
-    // Track cliques nos botões de compra
-    document.querySelectorAll('.btn-buy').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const produto = this.closest('.produto-card')?.dataset?.produto || 
-                           this.closest('.combo-card')?.querySelector('.combo-titulo')?.textContent || 
-                           'Produto Desconhecido';
-            trackEvent('Conversão', 'click_comprar', produto);
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            trackEvent('Lead', 'formulario_enviado', this.id || 'formulario');
         });
     });
 
-    // Track envio de formulários
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function() {
-            const formId = this.id || 'formulario_desconhecido';
-            trackEvent('Lead', 'formulario_enviado', formId);
-        });
+    // ===== SEARCH =====
+    document.getElementById('search-input')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const termo = this.value.trim().toLowerCase();
+            if (termo) {
+                const artigos = {
+                    'creatina em gummy': 'blog/creatina-em-gummy.html',
+                    'creatina gummy': 'blog/creatina-em-gummy.html',
+                    'creatina em goma': 'blog/creatina-em-gummy.html',
+                    'gummy creatina': 'blog/creatina-em-gummy.html',
+                    'creatina serve para que': 'blog/creatina-serve-para-que.html',
+                    'para que serve creatina': 'blog/creatina-serve-para-que.html',
+                    'o que a creatina faz no corpo': 'blog/o-que-a-creatina-faz-no-corpo.html',
+                    'qual a função da creatina': 'blog/o-que-a-creatina-faz-no-corpo.html',
+                    'velmo drink': 'blog/velmo-drink.html',
+                    'velmo black drink': 'blog/velmo-drink.html',
+                    'velmo drink morango': 'blog/velmo-drink.html',
+                    'clareador de virilha': 'blog/clareador-de-virilha.html',
+                    'clareador vilha': 'blog/clareador-de-virilha.html'
+                };
+                
+                let encontrado = false;
+                for (const [chave, url] of Object.entries(artigos)) {
+                    if (termo.includes(chave)) {
+                        window.location.href = url;
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) {
+                    alert('Termo não encontrado. Tente: creatina em gummy, para que serve creatina, velmo drink, clareador de virilha');
+                }
+            }
+        }
     });
 
 });
